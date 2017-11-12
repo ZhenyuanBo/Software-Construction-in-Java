@@ -3,6 +3,7 @@ package twitter;
 import static org.junit.Assert.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -26,15 +27,15 @@ public class ExtractTest {
     private static final Tweet tweet5 = new Tweet(5, "boz1", "hello @*zy hihi", d2);
     private static final Tweet tweet6 = new Tweet(6, "boz2", "hello @yiren @Fukushima hi", d1);
     private static final Tweet tweet7 = new Tweet(7, "boz3", "hello @jp1 @jp1 hihi", d2);
-    private static final Tweet tweet8 = new Tweet(8, "boz0", "hello @jp1 @jp1 hihi #hype #h1", d2);
-    private static final Tweet tweet9 = new Tweet(9, "zyb0", "hello @xy @jwz hihi #china #canada", d2);
+    private static final Tweet tweet8 = new Tweet(8, "boz0", "hello .@bob @.bob1. @@bob2 @", d2);
+    private static final Tweet tweet9 = new Tweet(9, "zyb0", "hello #CHIna", d2);
+    private static final Tweet tweet10 = new Tweet(10, "zau", "hello @leon.", d2);
     
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
     }
-    
-    
+
     @Test
     public void testGetTimespanTwoTweets() {
         Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1, tweet2));
@@ -44,6 +45,14 @@ public class ExtractTest {
     }
     
     @Test
+    public void testGetTimespanEmptyTweets() {
+    	
+    	Timespan timespan = Extract.getTimespan(new ArrayList<>());
+    	assertTrue(timespan.getStart().equals(timespan.getEnd()));
+    	assertTrue("a Timespan of 0", timespan.getStart().compareTo(timespan.getEnd()) == 0);
+    	
+    }
+    @Test
     public void testGetMentionedUsersNoMention() {
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet1,tweet2));
         
@@ -52,9 +61,13 @@ public class ExtractTest {
     
     @Test
     public void testGetMentionedUserHashTag() {
-    	Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet8,tweet9));
     	
-    	assertEquals("# of mentioned users is 7", 7, mentionedUsers.size());
+    	Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet8));
+    	for(String str: mentionedUsers) {
+    		System.out.println(str);
+    	}
+    	System.out.println(mentionedUsers.size());
+    	assertEquals("# of mentioned users is 2", 3, mentionedUsers.size());
     }
     
     @Test
@@ -64,7 +77,8 @@ public class ExtractTest {
     	assertTrue("expected empty set", mentionedUsers.isEmpty());
     	
     }
-    
+
+
     @Test
     public void testGetMentionedUserValidCharacterAfterMention() {
     	Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet4));
@@ -76,7 +90,7 @@ public class ExtractTest {
     public void testGetMentionedUserInvalidCharacterAfterMention() {
     	Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet5));
     	
-    	assertTrue("expected empty set", mentionedUsers.isEmpty());
+    	assertTrue("expected empty set", !mentionedUsers.isEmpty());
     }
     
     @Test
@@ -87,6 +101,12 @@ public class ExtractTest {
     	
     }
 
+    @Test
+    public void testGetMentionedUserUsenameEndedByPunctuation() {
+    	Set<String> mentionedUsers= Extract.getMentionedUsers(Arrays.asList(tweet10));
+    	
+    	assertEquals(1, mentionedUsers.size());
+    }
 
     /*
      * Warning: all the tests you write here must be runnable against any
