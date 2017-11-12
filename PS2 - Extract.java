@@ -57,14 +57,14 @@ public class Extract {
     public static Timespan getTimespan(List<Tweet> tweets) {
     	
     	if(tweets.isEmpty()) {
-    		return new Timespan(Instant.now(),Instant.now());
+    		return new Timespan(Instant.MAX,Instant.MAX);
     	}
     	
     	Instant start = getStart(tweets);
     	Instant end = getEnd(tweets);
-    	
+
     	return new Timespan(start,end);
-        //throw new RuntimeException("not implemented");
+
     }
 
     /**
@@ -95,25 +95,26 @@ public class Extract {
     		
     		String text = tweet.getText();
     		String[] textStringArr = text.split("\\s+");
-    		String userName = "";
     		
     		for(String str:textStringArr) {
-    			
+    			String userName = "";
     			//'@' or '#' (e.g. #mit)
     			if(str.indexOf('@')!=-1 || str.indexOf('#')!=-1) {
     				/*
-    				 * username-mention at the beginning of the tweet and is not followed by invalid tweet character
+    				 * username-mention at the beginning of the tweet and is not followed by valid tweet character
     				 */
-    				if((str.indexOf('@')==0 || str.indexOf('#')==0) && validCharacterVerify(str.charAt(1))) {
+    				if(str.length()>1 && (str.indexOf('@')==0 || str.indexOf('#')==0)) {
     					userName = userNameBuilder(str);
-    				}else if((str.indexOf('@')>0 || str.indexOf('#')>0) && 
-    					!validCharacterVerify(str.charAt(str.indexOf('@')-1)) &&
-    					!validCharacterVerify(str.charAt(str.indexOf('#')-1)) &&
-    					!validCharacterVerify(str.charAt(str.indexOf('#')+1)) &&
-    					!validCharacterVerify(str.charAt(str.indexOf('@')+1))) {
+    				}else if(str.indexOf('@')>0 && 
+    						validCharacterVerify(str.charAt(str.indexOf('@')-1)) &&
+    						!validCharacterVerify(str.charAt(str.indexOf('@')+1))) {
+    					userName = userNameBuilder(str);
+    				}else if(str.indexOf('#') > 0 && 
+    						validCharacterVerify(str.charAt(str.indexOf('#')-1)) &&
+    						!validCharacterVerify(str.charAt(str.indexOf('#')+1))) {
     					userName = userNameBuilder(str);
     				}
-    				
+    				System.out.println(userName);
     				if(userName!="") {
     					userNameSet.add(userName);
     				}
@@ -121,9 +122,7 @@ public class Extract {
     		}
     		
     	}
-    	//System.out.println(userNameSet.size());
     	return userNameSet;
-        //throw new RuntimeException("not implemented");
     }
     
     private static String userNameBuilder(String str) {
@@ -131,14 +130,12 @@ public class Extract {
     	
 		for(int i=1; i<str.length();i++) {
 			char ch = str.charAt(i);
-			if(validCharacterVerify(ch)) {
+			if(!validCharacterVerify(ch)) {
 				strBuilder.append(ch);
-			}else {
-				break;
 			}
 		}
 		
-		return strBuilder.toString();
+		return strBuilder.toString().toUpperCase();
     
     }
     
@@ -150,10 +147,10 @@ public class Extract {
     			(ch >= 'A' && ch <= 'Z') || 
     			(ch >= '0' && ch <= '9') || 
     			(new String(validCharacterArr).indexOf(ch)!=-1)) {
-    		return true;
+    		return false;
     	}
     	
-    	return false;
+    	return true;
     }
 
     /* Copyright (c) 2007-2016 MIT 6.005 course staff, all rights reserved.
