@@ -53,7 +53,6 @@ public class SocialNetwork {
     	}
     	
     	return followsGraph;
-        //throw new RuntimeException("not implemented");
     }
 
     /**
@@ -74,7 +73,7 @@ public class SocialNetwork {
     	
     	for(Set<String> follows: followsGraph.values()){
     		for(String follow:follows){
-    			follow = follow.toLowerCase();
+    			follow = follow.toUpperCase();
     			if(influencers.containsKey(follow)) {
     				followerCount = influencers.get(follow)+1;
     				influencers.put(follow, followerCount);
@@ -83,7 +82,13 @@ public class SocialNetwork {
     			}
     		}
     	}
-
+    	
+    	if(influencers.isEmpty()) {
+    		for(String str: followsGraph.keySet()) {
+    			userNameList.add(str);
+    		}
+    	}
+    	
     	//sort the follows and put them in the userNameList
     	while(!influencers.isEmpty()) {
     		int topFollowers = Collections.max(influencers.values());
@@ -96,6 +101,8 @@ public class SocialNetwork {
     			}
     		}
     	}
+    	
+    	
     	return userNameList;
     }
     /* Copyright (c) 2007-2016 MIT 6.005 course staff, all rights reserved.
