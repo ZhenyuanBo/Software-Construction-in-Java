@@ -75,6 +75,12 @@ public class FilterTest {
         assertTrue("expected list to contain tweets", containing.containsAll(Arrays.asList(tweet1, tweet2)));
         assertEquals("expected same order", 0, containing.indexOf(tweet1));
     }
+    
+    @Test 
+    public void testContainingNoFullWordsMatch() {
+    	List<Tweet> containing = Filter.containing(Arrays.asList(tweet2), Arrays.asList("tal"));
+    	assertTrue(containing.isEmpty());
+    }
 
     /*
      * Warning: all the tests you write here must be runnable against any Filter
