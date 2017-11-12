@@ -3,6 +3,8 @@ package twitter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
 
 /**
  * Filter consists of methods that filter a list of tweets for those matching a
@@ -28,9 +30,10 @@ public class Filter {
     public static List<Tweet> writtenBy(List<Tweet> tweets, String username) {
     	
     	List<Tweet> filteredTweetsList = new ArrayList<Tweet>();
+    	username = username.toUpperCase();
     	
     	for(Tweet tweet:tweets) {
-    		String authorName = tweet.getAuthor();
+    		String authorName = tweet.getAuthor().toUpperCase();
     		if(authorName.equals(username)) {
     			filteredTweetsList.add(tweet);
     		}
@@ -66,7 +69,6 @@ public class Filter {
     	}
     	
     	return tweetSentDuringTimeSpan;
-        //throw new RuntimeException("not implemented");
     }
 
     /**
@@ -88,10 +90,11 @@ public class Filter {
     	
     	List<Tweet> tweetContainWords = new ArrayList<Tweet>();
     	
-    	for(Tweet tweet:tweets) {
-    		String text = tweet.getText();
-    		for(String word:words) {
-    			if(text.toUpperCase().contains(word.toUpperCase())) {
+    	for(Tweet tweet: tweets) {
+    		String text = tweet.getText().toUpperCase();
+    		for(String word : words) {
+    			word = word.toUpperCase();
+    			if(isContain(text, word)) {
     				tweetContainWords.add(tweet);
     				break;
     			}
@@ -99,8 +102,14 @@ public class Filter {
     	}
     	
     	return tweetContainWords;
-        //throw new RuntimeException("not implemented");
     }
+    
+    private static boolean isContain(String source, String subItem){
+        String pattern = "\\b"+subItem+"\\b";
+        Pattern p=Pattern.compile(pattern);
+        return p.matcher(source).find();
+
+   }
 
     /* Copyright (c) 2007-2016 MIT 6.005 course staff, all rights reserved.
      * Redistribution of original or derived work requires explicit permission.
